@@ -12,7 +12,7 @@ write_files:
     owner: root:root
     permissions: '0644'
     content: |-
-      hcp_boundary_cluster_id = "6b7431f3-45eb-45a6-92d9-5edbdc8a6cc3"
+      hcp_boundary_cluster_id = "${boundary_cluster_id}"
 
       listener "tcp" {
         address = "0.0.0.0:9202"

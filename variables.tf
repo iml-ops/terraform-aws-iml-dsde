@@ -14,6 +14,10 @@ variable "network_cidr" {
   description = "The CIDR block for the network."
 }
 
+variable "boundary_cluster_id" {
+  type        = string
+  description = "The ID of the Boundary cluster."
+}
 
 variable "gateway_token" {
   type        = string
