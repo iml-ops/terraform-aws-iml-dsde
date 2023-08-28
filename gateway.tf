@@ -38,9 +38,10 @@ resource "aws_instance" "gateway" {
 
   user_data_replace_on_change = false
   user_data_base64 = base64encode(templatefile("${path.module}/files/cloud-config.yaml", {
-    activation_token = var.gateway_token
-    public_ip        = aws_eip.gateway.public_ip
-    tags             = jsonencode(["gateway", "dsde"])
+    boundary_cluster_id = var.boundary_cluster_id
+    activation_token    = var.gateway_token
+    public_ip           = aws_eip.gateway.public_ip
+    tags                = jsonencode(["gateway", "dsde"])
   }))
 
   tags = {
