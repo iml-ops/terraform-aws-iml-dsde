@@ -1,0 +1,44 @@
+## template: jinja
+#cloud-config
+preserve_sources_list: true
+packages:
+  - boundary-enterprise
+write_files:
+  - path: /etc/systemd/system/boundary.service
+    owner: root:root
+    permissions: '0755'
+    content: "[Unit]\nDescription=This unit starts the Boundary Gateway\nAfter=network.target\nWants=network-online.target\n\n[Service]\nRestart=always\nType=simple\nExecStart=/usr/bin/boundary server -config=\"/etc/boundary/gateway.hcl\"\n\n[Install]\nWantedBy=multi-user.target"
+  - path: /etc/boundary/gateway.hcl
+    owner: root:root
+    permissions: '0644'
+    content: |-
+      hcp_boundary_cluster_id = "6b7431f3-45eb-45a6-92d9-5edbdc8a6cc3"
+
+      listener "tcp" {
+        address = "0.0.0.0:9202"
+        purpose = "proxy"
+      }
+              
+      worker {
+        public_addr = "${public_ip}"
+        controller_generated_activation_token = "${activation_token}"
+        auth_storage_path = "/etc/boundary"
+        tags {
+          isolation = ["dsde"]
+          id = ["{{ v1.instance_id }}"]
+          cloud = ["{{ v1.cloud_name }}"]
+          region = ["{{ v1.region }}"]
+          fault_domain = ["{{ v1.availability_zone }}"]
+          instance_type = ["{{ ds.meta_data.instance_type }}"]
+          image_id = ["{{ ds.meta_data.ami_id }}"]
+          tags = ${tags}
+        }
+      }
+runcmd:
+  - systemctl start boundary
+  - systemctl enable boundary
+apt:
+  sources:
+    boundary:
+      source: deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main
+      keyid: AA16FCBCA621E701
